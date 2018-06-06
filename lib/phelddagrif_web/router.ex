@@ -13,14 +13,9 @@ defmodule PhelddagrifWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", PhelddagrifWeb do
-    pipe_through :browser # Use the default browser stack
+  scope "/api/v1", PhelddagrifWeb do
+    pipe_through :api
 
-    get "/", PageController, :index
+    resources "/cards", CardController, only: [:index, :show]
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", PhelddagrifWeb do
-  #   pipe_through :api
-  # end
 end
