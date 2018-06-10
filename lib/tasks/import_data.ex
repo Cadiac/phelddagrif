@@ -32,6 +32,7 @@ defmodule Mix.Tasks.Data.Import do
         # Insert cards to database
         response
         |> Map.get("data")
+        |> Enum.filter(fn(card) -> Map.get(card, "lang") == "en" end)
         |> Enum.map(fn(card) ->
           card_with_scryfall_id = Map.put_new(card, "scryfall_id", Map.get(card, "id"))
 
@@ -49,7 +50,7 @@ defmodule Mix.Tasks.Data.Import do
 
         Logger.info("Processed #{response |> Map.get("data") |> length} cards")
 
-        # fetch_pages(has_more_pages, next_page_url)
+        fetch_pages(has_more_pages, next_page_url)
       {:ok, %HTTPoison.Response{status_code: 429}} ->
         Logger.error("Hit rate limit, sleeping for a minute")
         Process.sleep(60_000)
