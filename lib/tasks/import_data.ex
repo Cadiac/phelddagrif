@@ -57,6 +57,9 @@ defmodule Mix.Tasks.Data.Import do
       {:error, %HTTPoison.Error{reason: reason}} ->
         Logger.error("API error while fetching cards: #{inspect reason}")
         Process.sleep(5000)
+      {:error, err} ->
+        Logger.error("Unknown error #{inspect err}")
+        Process.sleep(5000)
     end
   end
 end
