@@ -17,5 +17,6 @@ defmodule PhelddagrifWeb.Router do
     pipe_through :api
 
     resources "/cards", CardController, only: [:index, :show]
+    resources "/sets", SetController, only: [:index, :show]
   end
 end

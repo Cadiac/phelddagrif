@@ -4,7 +4,7 @@ defmodule Mix.Tasks.Data.Import do
 
   # import Mix.Ecto
 
-  alias Phelddagrif.Cards.Card
+  alias Phelddagrif.Atlas
 
   @shortdoc "Imports card data using Scryfall API"
   def run(_) do
@@ -12,8 +12,42 @@ defmodule Mix.Tasks.Data.Import do
     # ensure_started(Phelddagrif.Repo, [])
 
     Logger.info("Beginning data import")
+    Logger.info("Importing sets")
+    fetch_sets()
+    Logger.info("Importing cards")
     fetch_pages(true, "https://api.scryfall.com/cards")
     Logger.info("Import done!")
+  end
+
+  defp fetch_sets() do
+    url = "https://api.scryfall.com/sets"
+    options = [recv_timeout: 60_000]
+
+    Logger.info("GET #{url}")
+
+    case HTTPoison.get(url, [], options) do
+      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+        body
+        |> Poison.decode!
+        |> Map.get("data")
+        |> Enum.map(fn(set) ->
+          case Atlas.create_set(set) do
+            {:ok, inserted_set} ->
+              Logger.info("Successfully inserted set #{inserted_set.code}")
+            {:error, err} ->
+              Logger.error("Problem with set #{Map.get(set, "code")}: #{inspect err}")
+          end
+        end)
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
+        Logger.error("Got unknown status_code #{status_code}: #{inspect body}")
+        Process.sleep(60_000)
+      {:error, %HTTPoison.Error{reason: reason}} ->
+        Logger.error("API error while fetching sets: #{inspect reason}")
+        Process.sleep(5000)
+      {:error, err} ->
+        Logger.error("Unknown error #{inspect err}")
+        Process.sleep(5000)
+    end
   end
 
   defp fetch_pages(has_more_pages, _url) when has_more_pages === false, do: Logger.info("Found the last page.")
@@ -36,11 +70,7 @@ defmodule Mix.Tasks.Data.Import do
         |> Enum.map(fn(card) ->
           card_with_scryfall_id = Map.put_new(card, "scryfall_id", Map.get(card, "id"))
 
-          operation = %Card{}
-          |> Card.changeset(card_with_scryfall_id)
-          |> Phelddagrif.Repo.insert()
-
-          case operation do
+          case Atlas.create_card(card_with_scryfall_id) do
             {:ok, inserted_card} ->
               Logger.info("Successfully inserted card #{inserted_card.scryfall_id}")
             {:error, err} ->
@@ -53,6 +83,9 @@ defmodule Mix.Tasks.Data.Import do
         fetch_pages(has_more_pages, next_page_url)
       {:ok, %HTTPoison.Response{status_code: 429}} ->
         Logger.error("Hit rate limit, sleeping for a minute")
+        Process.sleep(60_000)
+      {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
+        Logger.error("Got unknown status_code #{status_code}: #{inspect body}")
         Process.sleep(60_000)
       {:error, %HTTPoison.Error{reason: reason}} ->
         Logger.error("API error while fetching cards: #{inspect reason}")

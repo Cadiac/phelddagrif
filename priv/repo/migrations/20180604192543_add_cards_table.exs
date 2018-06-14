@@ -49,12 +49,8 @@ defmodule Phelddagrif.Repo.Migrations.AddCardsTable do
       add :edhrec_rank, :integer, comment: "This card’s overall rank/popularity on EDHREC. Not all carsd are ranked."
 
       # Print fields
-
-      add :set, :text, null: false, comment: "This card’s set code."
-      add :set_name, :text, null: false, comment: "This card’s full set name."
+      add :set, references(:sets, on_delete: :restrict, column: :code, type: :string), [comment: "This card’s set code.", size: 40]
       add :collector_number, :text, null: false, comment: "This card’s collector number. Note that collector numbers can contain non-numeric characters, such as letters or *"
-      add :set_search_uri, :text, null: false, comment: "A link to where you can begin paginating this card’s set on the Scryfall API."
-      add :scryfall_set_uri, :text, null: false, comment: "A link to this card’s set on Scryfall’s website."
       add :image_uris, :map, comment: "An object listing available imagery for this card. See the [Card Imagery](#) article for more information."
       add :highres_image, :boolean, comment: "True if this card’s imagery is high resolution."
       add :printed_name, :text, null: false, comment: "The localized name printed on this card, if any."
