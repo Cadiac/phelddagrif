@@ -13,7 +13,7 @@ defmodule Mix.Tasks.Data.Import do
 
     Logger.info("Beginning data import")
     Logger.info("Importing sets")
-    fetch_sets()
+    # fetch_sets()
     Logger.info("Importing cards")
     fetch_pages(true, "https://api.scryfall.com/cards")
     Logger.info("Import done!")

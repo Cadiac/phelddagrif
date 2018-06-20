@@ -2,9 +2,10 @@ defmodule Phelddagrif.Atlas.Set do
   use Ecto.Schema
   import Ecto.Changeset
 
-  @primary_key {:code, :string, []}
-  @derive {Phoenix.Param, key: :code}
+  alias Phelddagrif.Atlas.Card
+
   schema "sets" do
+    field :code, :string
     field :mtgo_code, :string
     field :name, :string
     field :set_type, :string
@@ -19,6 +20,8 @@ defmodule Phelddagrif.Atlas.Set do
     field :search_uri, :string
 
     timestamps()
+
+    has_many :cards, Card, foreign_key: :set_id
   end
 
   @doc false
@@ -39,6 +42,7 @@ defmodule Phelddagrif.Atlas.Set do
       :icon_svg_uri,
       :search_uri
     ])
+    |> cast_assoc(:cards, required: false)
     |> validate_required([
       :code,
       :name,

@@ -7,8 +7,11 @@ defmodule PhelddagrifWeb.CardController do
 
   action_fallback PhelddagrifWeb.FallbackController
 
-  def index(conn, _params) do
-    cards = Atlas.list_cards()
+  def index(conn, params) do
+    page = params |> Map.get("page", "1") |> String.to_integer
+    limit = params |> Map.get("limit", "100") |> String.to_integer
+
+    cards = Atlas.list_cards(page, limit)
     render(conn, "index.json", cards: cards)
   end
 

@@ -49,7 +49,7 @@ defmodule Phelddagrif.Repo.Migrations.AddCardsTable do
       add :edhrec_rank, :integer, comment: "This card’s overall rank/popularity on EDHREC. Not all carsd are ranked."
 
       # Print fields
-      add :set, references(:sets, on_delete: :restrict, column: :code, type: :string), [comment: "This card’s set code.", size: 40]
+      add :set_id, references(:sets, on_delete: :restrict), comment: "Reference to this card’s set."
       add :collector_number, :text, null: false, comment: "This card’s collector number. Note that collector numbers can contain non-numeric characters, such as letters or *"
       add :image_uris, :map, comment: "An object listing available imagery for this card. See the [Card Imagery](#) article for more information."
       add :highres_image, :boolean, comment: "True if this card’s imagery is high resolution."
@@ -75,5 +75,7 @@ defmodule Phelddagrif.Repo.Migrations.AddCardsTable do
 
       timestamps()
     end
+
+    create unique_index(:cards, [:scryfall_id])
   end
 end

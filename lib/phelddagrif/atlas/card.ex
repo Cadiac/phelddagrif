@@ -3,6 +3,7 @@ defmodule Phelddagrif.Atlas.Card do
   import Ecto.Changeset
 
   alias Phelddagrif.Atlas.Card
+  alias Phelddagrif.Atlas.Set
 
   schema "cards" do
     field(:scryfall_id, :binary_id, null: false)
@@ -49,7 +50,6 @@ defmodule Phelddagrif.Atlas.Card do
 
     # Print fields
 
-    field(:set, :string, null: false)
     field(:collector_number, :string, null: false)
     field(:image_uris, :map)
     field(:highres_image, :boolean)
@@ -72,6 +72,8 @@ defmodule Phelddagrif.Atlas.Card do
     field(:timeshifted, :boolean, null: false)
     field(:colorshifted, :boolean, null: false)
     field(:futureshifted, :boolean, null: false)
+
+    belongs_to :set, Set, foreign_key: :set_id
 
     timestamps()
   end
@@ -112,7 +114,6 @@ defmodule Phelddagrif.Atlas.Card do
       :nonfoil,
       :oversized,
       :edhrec_rank,
-      :set,
       :collector_number,
       :image_uris,
       :highres_image,

@@ -2,8 +2,8 @@ defmodule Phelddagrif.Repo.Migrations.CreateSets do
   use Ecto.Migration
 
   def change do
-    create table(:sets, primary_key: false) do
-      add :code, :string, [primary_key: true, size: 40, comment: "The unique three or four-letter code for this set."]
+    create table(:sets) do
+      add :code, :string, [size: 40, comment: "The unique three or four-letter code for this set."]
       add :mtgo_code, :string, comment: "The unique code for this set on MTGO, which may differ from the regular code."
       add :name, :string, null: false, comment: "The English name of the set."
       add :set_type, :string, null: false, comment: "A computer-readable classification for this set. See below."

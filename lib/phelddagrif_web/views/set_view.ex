@@ -15,7 +15,7 @@ defmodule PhelddagrifWeb.SetView do
       code: set.code,
       mtgo_code: set.mtgo_code,
       name: set.name,
-      set_type: set.type,
+      set_type: set.set_type,
       released_at: set.released_at,
       block_code: set.block_code,
       block: set.block,

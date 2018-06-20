@@ -21,10 +21,7 @@ defmodule PhelddagrifWeb.CardView do
       power: card.power,
       toughness: card.toughness,
       colors: card.colors,
-      set: %{
-        set_name: card.set_name,
-        set_code: card.set
-      }
+      set: render_one(card.set, PhelddagrifWeb.SetView, "set.json")
     }
   end
 end

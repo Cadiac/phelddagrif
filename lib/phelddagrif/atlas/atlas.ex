@@ -47,6 +47,28 @@ defmodule Phelddagrif.Atlas do
   def get_set!(id), do: Repo.get!(Set, id)
 
   @doc """
+  Gets a single set by its code.
+
+  Raises `Ecto.NoResultsError` if the Set does not exist.
+
+  ## Examples
+
+      iex> get_set_by_code!("m19")
+      %Set{}
+
+      iex> get_set_by_code!("m24")
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_set_by_code!(code) do
+    Repo.one!(
+      from s in Set,
+      where: s.code == ^code
+    )
+  end
+
+
+  @doc """
   Creates a set.
 
   ## Examples
@@ -123,10 +145,14 @@ defmodule Phelddagrif.Atlas do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_card(attrs \\ %{}) do
-    %Card{}
+  def create_card(%{"set" => code} = attrs) do
+    set = Phelddagrif.Atlas.get_set_by_code!(code)
+
+    {:ok, card} = Ecto.build_assoc(set, :cards)
     |> Card.changeset(attrs)
     |> Repo.insert()
+
+    {:ok, Repo.preload(card, [:set])}
   end
 
   @doc """
@@ -138,8 +164,15 @@ defmodule Phelddagrif.Atlas do
       [%Card{}, ...]
 
   """
-  def list_cards do
-    Repo.all(Card)
+  def list_cards(page, limit) do
+    Repo.all(
+      from c in Card,
+      select: c,
+      order_by: [asc: c.id],
+      limit: ^limit,
+      offset: ^((page-1) * limit),
+      preload: :set
+    )
   end
 
   @doc """
