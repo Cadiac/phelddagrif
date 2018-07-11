@@ -13,7 +13,7 @@ defmodule Mix.Tasks.Data.Import do
 
     Logger.info("Beginning data import")
     Logger.info("Importing sets")
-    # fetch_sets()
+    fetch_sets()
     Logger.info("Importing cards")
     fetch_pages(true, "https://api.scryfall.com/cards")
     Logger.info("Import done!")
@@ -84,15 +84,19 @@ defmodule Mix.Tasks.Data.Import do
       {:ok, %HTTPoison.Response{status_code: 429}} ->
         Logger.error("Hit rate limit, sleeping for a minute")
         Process.sleep(60_000)
+        fetch_pages(has_more_pages, url)
       {:ok, %HTTPoison.Response{status_code: status_code, body: body}} ->
         Logger.error("Got unknown status_code #{status_code}: #{inspect body}")
         Process.sleep(60_000)
+        fetch_pages(has_more_pages, url)
       {:error, %HTTPoison.Error{reason: reason}} ->
         Logger.error("API error while fetching cards: #{inspect reason}")
         Process.sleep(5000)
+        fetch_pages(has_more_pages, url)
       {:error, err} ->
         Logger.error("Unknown error #{inspect err}")
         Process.sleep(5000)
+        fetch_pages(has_more_pages, url)
     end
   end
 end
