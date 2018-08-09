@@ -118,14 +118,48 @@ defmodule Phelddagrif.Catalog do
   end
 
   @doc """
+  Gets a single collection card by card_id and collection_id
+
+  Returns nil if it doesn't exist
+
+  ## Examples
+
+      iex> get_collection_card(123, 456)
+      %CollectionCard{}
+
+      iex> get_collection_card(123, 456)
+      nil
+
+  """
+  def get_collection_card(card_id, collection_id) do
+    Repo.one(
+      from c in CollectionCard,
+      where: c.card_id == ^card_id,
+      where: c.collection_id == ^collection_id
+    )
+  end
+
+  @doc """
   Adds one or more copies of a new card to collection.
   """
-  def add_card_to_collection(%{"card_id" => card_id, "collection_id" => collection_id, "quantity" => quantity} = attrs) do
-    card = Phelddagrif.Atlas.get_card!(card_id) |> Repo.preload(:collections)
-    collection = Phelddagrif.Catalog.get_collection!(collection_id) |> Repo.preload(:cards)
-
-    Ecto.Changeset.change(collection)
-    |> Ecto.Changeset.put_assoc(:cards, [card])
-    |> Repo.update
+  def add_card_to_collection(%{"card_id" => card_id, "collection_id" => collection_id, "quantity" => quantity}) do
+    # Do card and collection exist?
+    with card <- Phelddagrif.Atlas.get_card!(card_id) |> Repo.preload(:collections),
+         collection <- Phelddagrif.Catalog.get_collection!(collection_id) |> Repo.preload(:cards)
+    do
+      # Update quantity or add new card to collection
+      case Phelddagrif.Catalog.get_collection_card(card_id, collection_id) do
+        %CollectionCard{} = collection_card ->
+          collection_card
+          |> CollectionCard.changeset(%{"quantity" => quantity})
+          |> Repo.update()
+        nil ->
+          collection
+          |> Ecto.build_assoc(:collection_cards)
+          |> CollectionCard.changeset(%{"quantity" => quantity})
+          |> Ecto.Changeset.put_assoc(:card, card)
+          |> Repo.insert()
+      end
+    end
   end
 end

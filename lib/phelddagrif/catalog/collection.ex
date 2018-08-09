@@ -3,12 +3,16 @@ defmodule Phelddagrif.Catalog.Collection do
   import Ecto.Changeset
 
   alias Phelddagrif.Atlas.Card
+  alias Phelddagrif.Catalog.CollectionCard
 
   schema "collections" do
     field :name, :string
     field :owner, :string
 
-    many_to_many :cards, Card, join_through: Phelddagrif.Catalog.CollectionCard
+    # many_to_many :cards, Card, join_through: Phelddagrif.Catalog.CollectionCard
+
+    has_many :collection_cards, CollectionCard, on_delete: :delete_all
+    has_many :cards, through: [:collection_cards, :card]
 
     timestamps()
   end

@@ -5,6 +5,7 @@ defmodule Phelddagrif.Repo.Migrations.CreateCollectionCards do
     create table(:collection_cards) do
       add :card_id, references(:cards, on_delete: :nothing), null: false
       add :collection_id, references(:collections, on_delete: :nothing), null: false
+      add :quantity, :integer, null: false, comment: "Quantity of cards owned"
 
       timestamps()
     end
