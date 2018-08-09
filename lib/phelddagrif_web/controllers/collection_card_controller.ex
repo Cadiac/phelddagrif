@@ -12,31 +12,31 @@ defmodule PhelddagrifWeb.CollectionCardController do
   end
 
   def create(conn, %{"collection_card" => collection_card_params}) do
-    with {:ok, %CollectionCard{} = collection_card} <- Catalog.create_collection_card(collection_card_params) do
+    with {:ok, _} <- Catalog.add_card_to_collection(collection_card_params) do
       conn
-      |> put_status(:created)
-      |> put_resp_header("location", collection_card_path(conn, :show, collection_card))
-      |> render("show.json", collection_card: collection_card)
+      |> send_resp(201, "")
+      # |> put_status(:created)
+      # |> render("show.json", collection_card: collection_card)
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    collection_card = Catalog.get_collection_card!(id)
-    render(conn, "show.json", collection_card: collection_card)
-  end
+  # def show(conn, %{"id" => id}) do
+  #   collection_card = Catalog.get_collection_card!(id)
+  #   render(conn, "show.json", collection_card: collection_card)
+  # end
 
-  def update(conn, %{"id" => id, "collection_card" => collection_card_params}) do
-    collection_card = Catalog.get_collection_card!(id)
+  # def update(conn, %{"id" => id, "collection_card" => collection_card_params}) do
+  #   collection_card = Catalog.get_collection_card!(id)
 
-    with {:ok, %CollectionCard{} = collection_card} <- Catalog.update_collection_card(collection_card, collection_card_params) do
-      render(conn, "show.json", collection_card: collection_card)
-    end
-  end
+  #   with {:ok, %CollectionCard{} = collection_card} <- Catalog.update_collection_card(collection_card, collection_card_params) do
+  #     render(conn, "show.json", collection_card: collection_card)
+  #   end
+  # end
 
-  def delete(conn, %{"id" => id}) do
-    collection_card = Catalog.get_collection_card!(id)
-    with {:ok, %CollectionCard{}} <- Catalog.delete_collection_card(collection_card) do
-      send_resp(conn, :no_content, "")
-    end
-  end
+  # def delete(conn, %{"id" => id}) do
+  #   collection_card = Catalog.get_collection_card!(id)
+  #   with {:ok, %CollectionCard{}} <- Catalog.delete_collection_card(collection_card) do
+  #     send_resp(conn, :no_content, "")
+  #   end
+  # end
 end

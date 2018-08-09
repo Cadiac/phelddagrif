@@ -16,9 +16,10 @@ defmodule PhelddagrifWeb.Router do
   scope "/api/v1", PhelddagrifWeb do
     pipe_through :api
 
-    resources "/cards", CardController, only: [:index, :show]
-    resources "/sets", SetController, only: [:index, :show]
-    resources "/collections", CollectionController, only: [:index, :show, :create, :update, :delete]
-    resources "/collections/cards", CollectionCardController, only: [:index, :show, :create, :update, :delete]
+    resources "/atlas/cards", CardController, only: [:index, :show]
+    resources "/atlas/sets", SetController, only: [:index, :show]
+    resources "/collections", CollectionController, only: [:index, :show, :create, :update, :delete] do
+      resources "/cards", CollectionCardController, only: [:index, :create]
+    end
   end
 end

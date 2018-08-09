@@ -118,83 +118,14 @@ defmodule Phelddagrif.Catalog do
   end
 
   @doc """
-  Gets a single collection_card.
-
-  Raises `Ecto.NoResultsError` if the Collection card does not exist.
-
-  ## Examples
-
-      iex> get_collection_card!(123)
-      %CollectionCard{}
-
-      iex> get_collection_card!(456)
-      ** (Ecto.NoResultsError)
-
+  Adds one or more copies of a new card to collection.
   """
-  def get_collection_card!(id), do: Repo.get!(CollectionCard, id)
+  def add_card_to_collection(%{"card_id" => card_id, "collection_id" => collection_id, "quantity" => quantity} = attrs) do
+    card = Phelddagrif.Atlas.get_card!(card_id) |> Repo.preload(:collections)
+    collection = Phelddagrif.Catalog.get_collection!(collection_id) |> Repo.preload(:cards)
 
-  @doc """
-  Creates a collection_card.
-
-  ## Examples
-
-      iex> create_collection_card(%{field: value})
-      {:ok, %CollectionCard{}}
-
-      iex> create_collection_card(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_collection_card(attrs \\ %{}) do
-    %CollectionCard{}
-    |> CollectionCard.changeset(attrs)
-    |> Repo.insert()
-  end
-
-  @doc """
-  Updates a collection_card.
-
-  ## Examples
-
-      iex> update_collection_card(collection_card, %{field: new_value})
-      {:ok, %CollectionCard{}}
-
-      iex> update_collection_card(collection_card, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_collection_card(%CollectionCard{} = collection_card, attrs) do
-    collection_card
-    |> CollectionCard.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a CollectionCard.
-
-  ## Examples
-
-      iex> delete_collection_card(collection_card)
-      {:ok, %CollectionCard{}}
-
-      iex> delete_collection_card(collection_card)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_collection_card(%CollectionCard{} = collection_card) do
-    Repo.delete(collection_card)
-  end
-
-  @doc """
-  Returns an `%Ecto.Changeset{}` for tracking collection_card changes.
-
-  ## Examples
-
-      iex> change_collection_card(collection_card)
-      %Ecto.Changeset{source: %CollectionCard{}}
-
-  """
-  def change_collection_card(%CollectionCard{} = collection_card) do
-    CollectionCard.changeset(collection_card, %{})
+    Ecto.Changeset.change(collection)
+    |> Ecto.Changeset.put_assoc(:cards, [card])
+    |> Repo.update
   end
 end

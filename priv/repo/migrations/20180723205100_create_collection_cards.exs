@@ -3,9 +3,8 @@ defmodule Phelddagrif.Repo.Migrations.CreateCollectionCards do
 
   def change do
     create table(:collection_cards) do
-      add :quantity, :integer
-      add :card_id, references(:cards, on_delete: :nothing)
-      add :collection_id, references(:collections, on_delete: :nothing)
+      add :card_id, references(:cards, on_delete: :nothing), null: false
+      add :collection_id, references(:collections, on_delete: :nothing), null: false
 
       timestamps()
     end

@@ -192,7 +192,8 @@ defmodule Phelddagrif.Atlas do
   def get_card!(id) do
     Repo.one!(
       from c in Card,
-      where: c.id == ^id
+      where: c.id == ^id,
+      preload: :set
     )
   end
 end

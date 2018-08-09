@@ -3,11 +3,11 @@ defmodule PhelddagrifWeb.CollectionView do
   alias PhelddagrifWeb.CollectionView
 
   def render("index.json", %{collections: collections}) do
-    %{data: render_many(collections, CollectionView, "collection.json")}
+    render_many(collections, CollectionView, "collection.json")
   end
 
   def render("show.json", %{collection: collection}) do
-    %{data: render_one(collection, CollectionView, "collection.json")}
+    render_one(collection, CollectionView, "collection.json")
   end
 
   def render("collection.json", %{collection: collection}) do

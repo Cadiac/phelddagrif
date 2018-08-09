@@ -4,6 +4,7 @@ defmodule Phelddagrif.Atlas.Card do
 
   alias Phelddagrif.Atlas.Card
   alias Phelddagrif.Atlas.Set
+  alias Phelddagrif.Catalog.Collection
 
   schema "cards" do
     field(:scryfall_id, :binary_id, null: false)
@@ -74,6 +75,7 @@ defmodule Phelddagrif.Atlas.Card do
     field(:futureshifted, :boolean, null: false)
 
     belongs_to :set, Set, foreign_key: :set_id
+    many_to_many :collections, Collection, join_through: Phelddagrif.Catalog.CollectionCard
 
     timestamps()
   end
@@ -136,5 +138,6 @@ defmodule Phelddagrif.Atlas.Card do
       :colorshifted,
       :futureshifted
     ])
+    |> cast_assoc(:collections, required: false)
   end
 end
