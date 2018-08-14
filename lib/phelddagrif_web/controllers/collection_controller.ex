@@ -21,7 +21,7 @@ defmodule PhelddagrifWeb.CollectionController do
   end
 
   def show(conn, %{"id" => id}) do
-    collection = Catalog.get_collection!(id)
+    collection = Catalog.get_collection_with_counts!(id)
     render(conn, "show.json", collection: collection)
   end
 

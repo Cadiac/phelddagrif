@@ -5,8 +5,8 @@ defmodule Phelddagrif.Catalog do
 
   import Ecto.Query, warn: false
   alias Phelddagrif.Repo
-
   alias Phelddagrif.Catalog.Collection
+  alias Phelddagrif.Catalog.CollectionCard
 
   @doc """
   Returns the list of collections.
@@ -18,7 +18,19 @@ defmodule Phelddagrif.Catalog do
 
   """
   def list_collections do
-    Repo.all(Collection)
+    Repo.all(
+      from collection in Collection,
+      left_join: card in CollectionCard,
+      on: card.collection_id == collection.id,
+      group_by: [collection.id, collection.name, collection.owner],
+      select: %{
+        id: collection.id,
+        name: collection.name,
+        owner: collection.owner,
+        total_cards: fragment("SUM(COALESCE(quantity, 0))"),
+        unique_cards: count(card.id)
+      }
+    )
   end
 
   @doc """
@@ -36,6 +48,37 @@ defmodule Phelddagrif.Catalog do
 
   """
   def get_collection!(id), do: Repo.get!(Collection, id)
+
+  @doc """
+  Gets a collection with its card counts.
+
+  Raises `Ecto.NoResultsError` if the Collection does not exist.
+
+  ## Examples
+
+      iex> get_collection_with_counts!(123)
+      %Collection{}
+
+      iex> get_collection_with_counts!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_collection_with_counts!(id) do
+    Repo.one(
+      from collection in Collection,
+      where: collection.id == ^id,
+      left_join: card in CollectionCard,
+      on: card.collection_id == collection.id,
+      group_by: [collection.id, collection.name, collection.owner],
+      select: %{
+        id: collection.id,
+        name: collection.name,
+        owner: collection.owner,
+        total_cards: fragment("SUM(COALESCE(quantity, 0))"),
+        unique_cards: count(card.id)
+      }
+    )
+  end
 
   @doc """
   Creates a collection.
@@ -102,8 +145,6 @@ defmodule Phelddagrif.Catalog do
     Collection.changeset(collection, %{})
   end
 
-  alias Phelddagrif.Catalog.CollectionCard
-
   @doc """
   Returns the list of collection_cards.
 
@@ -113,8 +154,12 @@ defmodule Phelddagrif.Catalog do
       [%CollectionCard{}, ...]
 
   """
-  def list_collection_cards do
-    Repo.all(CollectionCard)
+  def list_collection_cards(collection_id) do
+    Repo.all(
+      from c in CollectionCard,
+      where: c.collection_id == ^collection_id,
+      preload: [card: :set]
+    )
   end
 
   @doc """
@@ -142,7 +187,7 @@ defmodule Phelddagrif.Catalog do
   @doc """
   Adds one or more copies of a new card to collection.
   """
-  def add_card_to_collection(%{"card_id" => card_id, "collection_id" => collection_id, "quantity" => quantity}) do
+  def add_card_to_collection(collection_id, %{"card_id" => card_id, "quantity" => quantity}) do
     # Do card and collection exist?
     with card <- Phelddagrif.Atlas.get_card!(card_id) |> Repo.preload(:collections),
          collection <- Phelddagrif.Catalog.get_collection!(collection_id) |> Repo.preload(:cards)

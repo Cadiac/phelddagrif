@@ -21,7 +21,6 @@ defmodule Phelddagrif.Catalog.Collection do
   def changeset(collection, attrs) do
     collection
     |> cast(attrs, [:name, :owner])
-    |> cast_assoc(:cards, required: false)
     |> validate_required([:name, :owner])
   end
 end

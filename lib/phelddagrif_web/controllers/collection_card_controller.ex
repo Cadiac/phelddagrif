@@ -6,13 +6,13 @@ defmodule PhelddagrifWeb.CollectionCardController do
 
   action_fallback PhelddagrifWeb.FallbackController
 
-  def index(conn, _params) do
-    collection_cards = Catalog.list_collection_cards()
+  def index(conn, %{"collection_id" => collection_id}) do
+    collection_cards = Catalog.list_collection_cards(collection_id)
     render(conn, "index.json", collection_cards: collection_cards)
   end
 
-  def create(conn, %{"collection_card" => collection_card_params}) do
-    with {:ok, _} <- Catalog.add_card_to_collection(collection_card_params) do
+  def create(conn, %{"card" => card_params, "collection_id" => collection_id}) do
+    with {:ok, _} <- Catalog.add_card_to_collection(collection_id, card_params) do
       conn
       |> send_resp(201, "")
       # |> put_status(:created)

@@ -3,7 +3,7 @@ defmodule PhelddagrifWeb.CollectionView do
   alias PhelddagrifWeb.CollectionView
 
   def render("index.json", %{collections: collections}) do
-    render_many(collections, CollectionView, "collection.json")
+    %{data: render_many(collections, CollectionView, "collection.json")}
   end
 
   def render("show.json", %{collection: collection}) do
@@ -13,6 +13,9 @@ defmodule PhelddagrifWeb.CollectionView do
   def render("collection.json", %{collection: collection}) do
     %{id: collection.id,
       name: collection.name,
-      owner: collection.owner}
+      owner: collection.owner,
+      total_cards: Map.get(collection, :total_cards),
+      unique_cards: Map.get(collection, :unique_cards)
+    }
   end
 end

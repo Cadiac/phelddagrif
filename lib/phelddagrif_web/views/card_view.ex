@@ -5,7 +5,7 @@ defmodule PhelddagrifWeb.CardView do
   require Logger
 
   def render("index.json", %{cards: cards}) do
-    render_many(cards, CardView, "card.json")
+    %{data: render_many(cards, CardView, "card.json")}
   end
 
   def render("show.json", %{card: card}) do
