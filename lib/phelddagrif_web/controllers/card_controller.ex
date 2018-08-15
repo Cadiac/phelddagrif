@@ -11,8 +11,8 @@ defmodule PhelddagrifWeb.CardController do
     page = params |> Map.get("page", "1") |> String.to_integer
     limit = params |> Map.get("limit", "100") |> String.to_integer
 
-    cards = Atlas.list_cards(page, limit)
-    render(conn, "index.json", cards: cards)
+    result = Atlas.list_cards(page, limit)
+    render(conn, "index.json", result)
   end
 
   def show(conn, %{"id" => id}) do

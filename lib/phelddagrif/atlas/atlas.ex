@@ -12,9 +12,11 @@ defmodule Phelddagrif.Atlas do
   alias Phelddagrif.Atlas.Card
 
   defp paginate(query, page, limit) do
-    from query,
+    from(
+      query,
       limit: ^limit,
-      offset: ^((page-1) * limit)
+      offset: ^((page - 1) * limit)
+    )
   end
 
   @doc """
@@ -62,11 +64,12 @@ defmodule Phelddagrif.Atlas do
   """
   def get_set_by_code!(code) do
     Repo.one!(
-      from s in Set,
-      where: s.code == ^code
+      from(
+        s in Set,
+        where: s.code == ^code
+      )
     )
   end
-
 
   @doc """
   Creates a set.
@@ -148,9 +151,10 @@ defmodule Phelddagrif.Atlas do
   def create_card(%{"set" => code} = attrs) do
     set = Phelddagrif.Atlas.get_set_by_code!(code)
 
-    {:ok, card} = Ecto.build_assoc(set, :cards)
-    |> Card.changeset(attrs)
-    |> Repo.insert()
+    {:ok, card} =
+      Ecto.build_assoc(set, :cards)
+      |> Card.changeset(attrs)
+      |> Repo.insert()
 
     {:ok, Repo.preload(card, [:set])}
   end
@@ -165,14 +169,24 @@ defmodule Phelddagrif.Atlas do
 
   """
   def list_cards(page, limit) do
-    Repo.all(
-      from c in Card,
-      select: c,
-      order_by: [asc: c.id],
-      limit: ^limit,
-      offset: ^((page-1) * limit),
-      preload: :set
-    )
+    cards =
+      from(
+        c in Card,
+        order_by: [asc: c.id],
+        preload: :set
+      )
+      |> paginate(page, limit)
+      |> Repo.all()
+
+    total_count =
+      Repo.one(
+        from(
+          c in Card,
+          select: count(c.id)
+        )
+      )
+
+    %{total_count: total_count, has_more: page * limit < total_count, cards: cards}
   end
 
   @doc """
@@ -191,9 +205,11 @@ defmodule Phelddagrif.Atlas do
   """
   def get_card!(id) do
     Repo.one!(
-      from c in Card,
-      where: c.id == ^id,
-      preload: :set
+      from(
+        c in Card,
+        where: c.id == ^id,
+        preload: :set
+      )
     )
   end
 end
