@@ -23,3 +23,13 @@ erl_crash.dump
 
 # VS Code dialyzer stuff
 /.elixir_ls
+
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
