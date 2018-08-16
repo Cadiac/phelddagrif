@@ -16,7 +16,8 @@ use Mix.Config
 config :phelddagrif, PhelddagrifWeb.Endpoint,
   load_from_system_env: true,
   url: [scheme: "http", host: System.get_env("HOST"), port: 80],
-  force_ssl: [rewrite_on: [:x_forwarded_proto]],
+  server: true,
+  code_reloader: false,
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Configure your database
