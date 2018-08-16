@@ -2,21 +2,21 @@ APP="phelddagrif"
 
 BUILD_HOST="sivu.website"
 BUILD_USER="deploy"
-BUILD_AT="/tmp/edeliver/myapp/builds"
+BUILD_AT="/tmp/edeliver/phelddagrif/builds"
 
-# STAGING_HOSTS="sivu.website"
-# STAGING_USER="deploy"
+STAGING_HOSTS="sivu.website"
+STAGING_USER="staging"
 
-PRODUCTION_HOSTS="sivu.website"
-PRODUCTION_USER="deploy"
-DELIVER_TO="/home/deploy/app_release"
+# PRODUCTION_HOSTS="sivu.website"
+# PRODUCTION_USER="deploy"
+DELIVER_TO="/home/staging/app_release"
 
 # For *Phoenix* projects, symlink prod.secret.exs to our tmp source
 pre_erlang_get_and_update_deps() {
-  local _prod_secret_path="/home/deploy/app_config/prod.secret.exs"
-  if [ "$TARGET_MIX_ENV" = "prod" ]; then
-    __sync_remote "
-      ln -sfn '$_prod_secret_path' '$BUILD_AT/config/prod.secret.exs'
-    "
-  fi
+  # local _prod_secret_path="/home/staging/app_config/prod.secret.exs"
+  # if [ "$TARGET_MIX_ENV" = "prod" ]; then
+  #   __sync_remote "
+  #     ln -sfn '$_prod_secret_path' '$BUILD_AT/config/prod.secret.exs'
+  #   "
+  # fi
 }
