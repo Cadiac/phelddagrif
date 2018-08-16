@@ -11,9 +11,9 @@ resource "digitalocean_record" "CNAME-www" {
   value = "@"
 }
 
-resource "digitalocean_record" "CNAME-dev" {
+resource "digitalocean_record" "CNAME-phelddagrif" {
   domain = "${digitalocean_domain.default.name}"
   type = "CNAME"
-  name = "dev"
+  name = "phelddagrif"
   value = "@"
 }
