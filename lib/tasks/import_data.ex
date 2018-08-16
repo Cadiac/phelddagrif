@@ -2,15 +2,15 @@ defmodule Mix.Tasks.Data.Import do
   use Mix.Task
   require Logger
 
-  # import Mix.Ecto
-
   alias Phelddagrif.Atlas
 
   @shortdoc "Imports card data using Scryfall API"
   def run(_) do
     Mix.Task.run("app.start")
-    # ensure_started(Phelddagrif.Repo, [])
+    import_data()
+  end
 
+  def import_data() do
     Logger.info("Beginning data import")
     Logger.info("Importing sets")
     fetch_sets()

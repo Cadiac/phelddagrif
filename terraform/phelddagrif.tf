@@ -38,8 +38,6 @@ resource "digitalocean_droplet" "phelddagrif" {
       "sudo mkdir /home/staging/.ssh",
       "sudo cp /root/.ssh/authorized_keys /home/staging/.ssh/authorized_keys",
       "sudo chown staging /home/staging/.ssh/authorized_keys",
-      # Create directory for releases
-      "sudo mkdir /home/staging/app_release",
       # Setup firewall
       "sudo ufw allow OpenSSH",
       "sudo ufw --force enable",
