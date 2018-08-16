@@ -64,14 +64,14 @@ resource "digitalocean_droplet" "phelddagrif" {
       "echo \"export LC_ALL=en_US.UTF-8\" >> /home/production/.profile",
       "echo \"export LANGUAGE=en_US.UTF\" >> /home/production/.profile",
       "echo \"export PORT=3000\" >> /home/production/.profile",
-      "echo \"export DATABASE_URL=\"postgres://production:${var.production_db_password}@localhost/phelddagrif_production\"\" >> /home/production/.profile",
+      "echo \"export DATABASE_URL=\"postgres://production:${var.production_db_password}@localhost/phelddagrif_prod\"\" >> /home/production/.profile",
       "echo \"export SECRET_KEY_BASE=${var.secret_key_base}\" >> /home/production/.profile",
       # Copy nginx config from tmp and replace the default site with it
       "cp /tmp/nginx.conf /etc/nginx/sites-available/default",
       # Restart nginx
       "sudo systemctl reload nginx",
-      # Request SSL certificate
-      "sudo certbot --nginx -d phelddagrif.sivu.website --non-interactive --agree-tos --email ${var.letsencrypt_email}",
+      # Request SSL certificate. This has to be run after DNS provider has completed...
+      "( sleep 300 ; sudo certbot --nginx -d phelddagrif.sivu.website --non-interactive --agree-tos --email ${var.letsencrypt_email} ) &",
       # Disable root SSH login
       "sed -i 's/PermitRootLogin yes/PermitRootLogin no/g' /etc/ssh/sshd_config",
       "sudo service sshd restart"
