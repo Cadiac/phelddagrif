@@ -1,15 +1,12 @@
 APP="phelddagrif"
 
 BUILD_HOST="sivu.website"
-BUILD_USER="staging"
+BUILD_USER="build"
 BUILD_AT="/tmp/edeliver/phelddagrif/builds"
 
-STAGING_HOSTS="sivu.website"
-STAGING_USER="staging"
-
-# PRODUCTION_HOSTS="sivu.website"
-# PRODUCTION_USER="deploy"
-DELIVER_TO="/home/staging/app_release"
+PRODUCTION_HOSTS="sivu.website"
+PRODUCTION_USER="production"
+DELIVER_TO="/home/production/app_release"
 
 # For *Phoenix* projects, symlink prod.secret.exs to our tmp source
 # pre_erlang_get_and_update_deps() {
