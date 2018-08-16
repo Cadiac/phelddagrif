@@ -1,7 +1,7 @@
 APP="phelddagrif"
 
 BUILD_HOST="sivu.website"
-BUILD_USER="deploy"
+BUILD_USER="staging"
 BUILD_AT="/tmp/edeliver/phelddagrif/builds"
 
 STAGING_HOSTS="sivu.website"

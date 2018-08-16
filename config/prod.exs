@@ -21,7 +21,7 @@ config :phelddagrif, PhelddagrifWeb.Endpoint,
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # Configure your database
-config :phelddagrif, PhelddagrifWeb.Repo,
+config :phelddagrif, Phelddagrif.Repo,
   adapter: Ecto.Adapters.Postgres,
   url: System.get_env("DATABASE_URL"),
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
