@@ -1,6 +1,6 @@
-resource "digitalocean_droplet" "phelddagrif-dev" {
+resource "digitalocean_droplet" "phelddagrif" {
   image = "ubuntu-16-04-x64"
-  name = "phelddagrif-dev"
+  name = "phelddagrif"
   region = "ams3"
   size = "1gb"
   ssh_keys = [
@@ -31,26 +31,32 @@ resource "digitalocean_droplet" "phelddagrif-dev" {
       # Install erlang and elixir
       "sudo apt-get -y install esl-erlang",
       "sudo apt-get -y install elixir",
-      # Add user for deployments and set its password
-      "sudo adduser --disabled-password --gecos '' deploy",
-      "echo 'deploy:${var.deploy_password}'|chpasswd",
-      "sudo usermod -aG sudo deploy",
-      "sudo mkdir /home/deploy/.ssh",
-      "sudo cp /root/.ssh/authorized_keys /home/deploy/.ssh/authorized_keys",
-      "sudo chown deploy /home/deploy/.ssh/authorized_keys",
+      # Add user for staging deployments and set its password
+      "sudo adduser --disabled-password --gecos '' staging",
+      "echo 'staging:${var.staging_password}'|chpasswd",
+      "sudo usermod -aG sudo staging",
+      "sudo mkdir /home/staging/.ssh",
+      "sudo cp /root/.ssh/authorized_keys /home/staging/.ssh/authorized_keys",
+      "sudo chown staging /home/staging/.ssh/authorized_keys",
+      # Create directory for releases
+      "sudo mkdir /home/staging/app_release",
       # Setup firewall
       "sudo ufw allow OpenSSH",
       "sudo ufw --force enable",
       # Install postgres
       "sudo apt-get -y install postgresql-10",
       # Create database
-      "sudo -u postgres psql -c \"CREATE DATABASE phelddagrif_dev;\"",
-      "sudo -u postgres psql -c \"CREATE USER phelddagrif WITH PASSWORD '${var.db_password}';\"",
-      "sudo -u postgres psql -c \"GRANT ALL PRIVILEGES ON DATABASE phelddagrif_dev TO phelddagrif;\"",
+      "sudo -u postgres psql -c \"CREATE DATABASE phelddagrif_staging;\"",
+      "sudo -u postgres psql -c \"CREATE USER staging WITH PASSWORD '${var.staging_db_password}';\"",
+      "sudo -u postgres psql -c \"GRANT ALL PRIVILEGES ON DATABASE phelddagrif_staging TO staging;\"",
       # Install nodejs
       "curl -sL https://deb.nodesource.com/setup_8.x -o nodesource_setup.sh",
       "sudo bash nodesource_setup.sh",
       "sudo apt-get -y install nodejs",
+      # Set environment variables for staging environment
+      "echo \"export PORT=4000\" >> /home/staging/.profile",
+      "echo \"export DATABASE_URL=\"postgres://staging:${var.staging_db_password}@localhost/phelddagrif_staging\"\" >> /home/staging/.profile",
+      "echo \"export SECRET_KEY_BASE=${var.secret_key_base}\" >> /home/staging/.profile",
       # Disable root SSH login
       "sed -i 's/PermitRootLogin yes/PermitRootLogin no/g' /etc/ssh/sshd_config",
       "sudo service sshd restart"

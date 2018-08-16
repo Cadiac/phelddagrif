@@ -12,7 +12,7 @@ config :phelddagrif,
 # Configures the endpoint
 config :phelddagrif, PhelddagrifWeb.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "mWmeC4Cl+XlvEnLJVUlkHlKhDr9Dp/iV7vIEg6kyusWIgL8cCWj/Ool7+WP9pjZi",
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: PhelddagrifWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Phelddagrif.PubSub,
            adapter: Phoenix.PubSub.PG2]

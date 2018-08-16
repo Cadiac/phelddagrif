@@ -33,3 +33,6 @@ erl_crash.dump
 
 # Crash log files
 crash.log
+
+# Edelivery
+.deliver/releases/
