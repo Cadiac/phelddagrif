@@ -39,6 +39,8 @@ resource "digitalocean_droplet" "phelddagrif" {
       "sudo apt-get -y install elixir",
       # Install certbot for letsencrypt
       "sudo apt-get -y install python-certbot-nginx",
+      # Install DO monitoring
+      "curl -sSL https://agent.digitalocean.com/install.sh | sh",
       # Add user for production deployments and set its password
       "sudo adduser --disabled-password --gecos '' production",
       "echo 'production:${var.production_password}'|chpasswd",
