@@ -2,7 +2,7 @@ resource "digitalocean_droplet" "phelddagrif" {
   image = "ubuntu-16-04-x64"
   name = "phelddagrif"
   region = "ams3"
-  size = "1gb"
+  size = "s-1vcpu-1gb"
   ssh_keys = [
     "${var.ssh_fingerprint}"
   ]
