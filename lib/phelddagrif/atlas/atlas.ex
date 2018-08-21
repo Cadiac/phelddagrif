@@ -164,11 +164,11 @@ defmodule Phelddagrif.Atlas do
 
   ## Examples
 
-      iex> list_cards()
+      iex> list_cards(0, 100)
       [%Card{}, ...]
 
   """
-  def list_cards(page, limit) do
+  def list_cards(page \\ 1, limit \\ 100) do
     cards =
       from(
         c in Card,
@@ -183,6 +183,44 @@ defmodule Phelddagrif.Atlas do
         from(
           c in Card,
           select: count(c.id)
+        )
+      )
+
+    %{total_count: total_count, has_more: page * limit < total_count, cards: cards}
+  end
+
+  @doc """
+  Search cards containing search keyword
+
+  ## Examples
+
+      iex> search_cards("Squee", 1, 100)
+      [%Card{}, ...]
+
+  """
+  def search_cards(term, page \\ 1, limit \\ 100) do
+    wildcard_term = "%#{term}%"
+
+    cards =
+      from(
+        c in Card,
+        where: ilike(c.name, ^wildcard_term),
+        or_where: ilike(c.type_line, ^wildcard_term),
+        or_where: ilike(c.oracle_text, ^wildcard_term)
+      )
+      |> paginate(page, limit)
+      |> Repo.all()
+      # TODO: Do this with proper join, this executes another select query
+      |> Repo.preload([set: (from s in Set, order_by: s.released_at)])
+
+    total_count =
+      Repo.one(
+        from(
+          c in Card,
+          select: count(c.id),
+          where: ilike(c.name, ^wildcard_term),
+          or_where: ilike(c.type_line, ^wildcard_term),
+          or_where: ilike(c.oracle_text, ^wildcard_term)
         )
       )
 

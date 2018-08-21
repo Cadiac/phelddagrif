@@ -19,4 +19,12 @@ defmodule PhelddagrifWeb.CardController do
     card = Atlas.get_card!(id)
     render(conn, "show.json", %{card: card})
   end
+
+  def search(conn, %{"search_term" => search_term} = params) do
+    page = params |> Map.get("page", "1") |> String.to_integer
+    limit = params |> Map.get("limit", "100") |> String.to_integer
+
+    result = Atlas.search_cards(search_term, page, limit)
+    render(conn, "index.json", result)
+  end
 end
