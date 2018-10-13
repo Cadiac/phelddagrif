@@ -4,7 +4,6 @@ defmodule Phelddagrif.Catalog.CollectionCard do
 
   alias Phelddagrif.Atlas.Card
   alias Phelddagrif.Catalog.Collection
-  alias Phelddagrif.Catalog.CollectionCard
 
   schema "collection_cards" do
     timestamps()

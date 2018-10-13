@@ -39,3 +39,5 @@ crash.log
 
 # Card images
 /priv/static/images/cards
+
+.DS_Store

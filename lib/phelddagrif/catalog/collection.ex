@@ -2,7 +2,6 @@ defmodule Phelddagrif.Catalog.Collection do
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Phelddagrif.Atlas.Card
   alias Phelddagrif.Catalog.CollectionCard
 
   schema "collections" do

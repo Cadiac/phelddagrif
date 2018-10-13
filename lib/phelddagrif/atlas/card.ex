@@ -3,6 +3,7 @@ defmodule Phelddagrif.Atlas.Card do
   import Ecto.Changeset
 
   alias Phelddagrif.Atlas.Card
+  alias Phelddagrif.Atlas.CardImage
   alias Phelddagrif.Atlas.Set
   alias Phelddagrif.Catalog.Collection
 
@@ -76,6 +77,8 @@ defmodule Phelddagrif.Atlas.Card do
 
     belongs_to :set, Set, foreign_key: :set_id
     many_to_many :collections, Collection, join_through: Phelddagrif.Catalog.CollectionCard
+
+    has_many :card_images, CardImage, foreign_key: :card_id
 
     timestamps()
   end

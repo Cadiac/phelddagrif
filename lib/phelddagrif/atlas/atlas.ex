@@ -10,6 +10,7 @@ defmodule Phelddagrif.Atlas do
 
   alias Phelddagrif.Atlas.Set
   alias Phelddagrif.Atlas.Card
+  alias Phelddagrif.Atlas.CardImage
 
   defp paginate(query, page, limit) do
     from(
@@ -72,14 +73,14 @@ defmodule Phelddagrif.Atlas do
   end
 
   @doc """
-  Creates a set.
+  Upserts a set.
 
   ## Examples
 
-      iex> create_set(%{field: value})
+      iex> upsert_set(%{field: value})
       {:ok, %Set{}}
 
-      iex> create_set(%{field: bad_value})
+      iex> upsert_set(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
@@ -140,14 +141,14 @@ defmodule Phelddagrif.Atlas do
   end
 
   @doc """
-  Creates a card.
+  Upserts a card.
 
   ## Examples
 
-      iex> create_card(%{field: value})
+      iex> upsert_card(%{field: value})
       {:ok, %Card{}}
 
-      iex> create_card(%{field: bad_value})
+      iex> upsert_card(%{field: bad_value})
       {:error, %Ecto.Changeset{}}
 
   """
@@ -162,7 +163,7 @@ defmodule Phelddagrif.Atlas do
       conflict_target: :scryfall_id
     )
 
-    {:ok, Repo.preload(card, [:set])}
+    {:ok, Repo.preload(card, [:set, :card_images])}
   end
 
   @doc """
@@ -270,7 +271,7 @@ defmodule Phelddagrif.Atlas do
       from(
         c in Card,
         where: c.id == ^id,
-        preload: :set
+        preload: [:set, :card_images]
       )
     )
   end
@@ -297,4 +298,26 @@ defmodule Phelddagrif.Atlas do
       )
     )
   end
+
+  @doc """
+  Upserts a card image.
+
+  ## Examples
+
+      iex> upsert_card_image(%{field: value})
+      {:ok, %Card{}}
+
+      iex> upsert_card_image(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def upsert_card_image(card, attrs) do
+    Ecto.build_assoc(card, :card_images)
+    |> CardImage.changeset(attrs)
+    |> Repo.insert(
+      on_conflict: :replace_all,
+      conflict_target: [:card_id, :primary]
+    )
+  end
+
 end

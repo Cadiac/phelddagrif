@@ -7,7 +7,8 @@ defmodule Mix.Tasks.Data.Import do
 
   @api_options [recv_timeout: 60_000]
   @sets_api_url "https://api.scryfall.com/sets"
-  @cards_bulk_url "https://archive.scryfall.com/json/scryfall-oracle-cards.json"
+  # @cards_bulk_url "https://archive.scryfall.com/json/scryfall-oracle-cards.json"
+  @cards_bulk_url "http://localhost:4000/images/cards/scryfall-oracle-cards.json"
 
   @shortdoc "Imports card data using Scryfall API"
   def run(_) do
@@ -63,7 +64,7 @@ defmodule Mix.Tasks.Data.Import do
           with {:ok, inserted_card} <- Atlas.upsert_card(card_with_scryfall_id) do
             Logger.info("Successfully inserted card #{inserted_card.scryfall_id}")
 
-            case fetch_card_image(inserted_card) do
+            case update_card_image(inserted_card) do
               :ok ->
                 Logger.info("Successfully downloaded card image.")
 
@@ -80,23 +81,70 @@ defmodule Mix.Tasks.Data.Import do
     end
   end
 
-  defp download_and_save_image(image_uris, name, quality \\ "normal") do
-    url = Map.get(image_uris, quality)
+  defp maybe_download_image(image_uris, card, name, primary \\ true)
 
+  defp maybe_download_image(
+         %{"normal" => url},
+         %Phelddagrif.Atlas.Card{card_images: card_images} = card,
+         name,
+         primary
+       )
+       when is_nil(card_images) do
+    download_and_save_image(url, card, name, primary)
+  end
+
+  defp maybe_download_image(
+         %{"normal" => url},
+         %Phelddagrif.Atlas.Card{card_images: card_images} = card,
+         name,
+         primary
+       ) do
     case HTTPoison.head(url, [], @api_options) do
       {:ok, %HTTPoison.Response{status_code: 200, headers: headers}} ->
-        {_key, last_modified} = List.keyfind(headers, "Last-Modified", 0)
-        last_modified_date = Timex.parse(last_modified, "{RFC1123}")
-        :ok
+        {_key, date} = List.keyfind(headers, "Last-Modified", 0)
+        {:ok, image_last_modified} = Timex.parse(date, "{RFC1123}")
+
+        image_already_downloaded =
+          Enum.any?(card_images, fn image ->
+            Timex.equal?(image.last_modified, image_last_modified)
+          end)
+
+        if image_already_downloaded do
+          Logger.info("Image #{name} already downloaded, skipping")
+          :ok
+        else
+          Logger.info("Different timestamps, fetching image")
+        end
+
       {:error, %HTTPoison.Error{reason: reason}} ->
         Logger.error("API error while fetching bulk cards HEAD: #{inspect(reason)}")
         {:error, reason}
     end
 
+    download_and_save_image(url, card, name, primary)
+  end
+
+  defp download_and_save_image(url, %{illustration_id: illustration_id} = card, name, primary) do
     case HTTPoison.get(url, [], @api_options) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        File.write!("priv/static/images/#{name}.jpg", body)
-        :ok
+      {:ok, %HTTPoison.Response{status_code: 200, body: body, headers: headers}} ->
+        with {_, content_type} <- List.keyfind(headers, "Content-Type", 0),
+             {_, content_length} <- List.keyfind(headers, "Content-Length", 0),
+             {_, date} <- List.keyfind(headers, "Last-Modified", 0) do
+          {:ok, last_modified} = Timex.parse(date, "{RFC1123}")
+
+          relative_url = "/images/cards/#{name}"
+
+          File.write!("priv/static#{relative_url}", body)
+
+          Atlas.upsert_card_image(card, %{
+            last_modified: last_modified,
+            illustration_id: illustration_id,
+            url: relative_url,
+            content_type: content_type,
+            content_length: content_length,
+            primary: primary
+          })
+        end
 
       {:error, %HTTPoison.Error{reason: reason}} ->
         Logger.error("API error while fetching bulk cards GET: #{inspect(reason)}")
@@ -104,20 +152,24 @@ defmodule Mix.Tasks.Data.Import do
     end
   end
 
-  defp fetch_card_image(%Phelddagrif.Atlas.Card{layout: layout, card_faces: [front, back]} = card)
+  defp update_card_image(
+         %Phelddagrif.Atlas.Card{layout: layout, card_faces: [front, back]} = card
+       )
        when layout == "transform" do
-    with :ok <- Map.get(front, "image_uris") |> download_and_save_image(card.id),
-         :ok <- Map.get(back, "image_uris") |> download_and_save_image("#{card.id}-back") do
+    with {:ok, _image} <- Map.get(front, "image_uris") |> maybe_download_image(card, "#{card.id}.jpg"),
+         {:ok, _image} <-
+           Map.get(back, "image_uris") |> maybe_download_image(card, "#{card.id}-back.jpg", false) do
       :ok
     else
       err -> err
     end
   end
 
-  defp fetch_card_image(%Phelddagrif.Atlas.Card{image_uris: image_uris}) when is_nil(image_uris),
+  defp update_card_image(%Phelddagrif.Atlas.Card{image_uris: image_uris}) when is_nil(image_uris),
     do: :ok
 
-  defp fetch_card_image(%Phelddagrif.Atlas.Card{image_uris: image_uris} = card) do
-    download_and_save_image(image_uris, card.id)
+  defp update_card_image(%Phelddagrif.Atlas.Card{image_uris: image_uris} = card) do
+    {:ok, _image} = maybe_download_image(image_uris, card, "#{card.id}.jpg")
+    :ok
   end
 end
