@@ -83,10 +83,17 @@ defmodule Phelddagrif.Atlas do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_set(attrs \\ %{}) do
-    %Set{}
-    |> Set.changeset(attrs)
-    |> Repo.insert()
+  def upsert_set(attrs \\ %{}) do
+    try do
+      %Set{}
+      |> Set.changeset(attrs)
+      |> Repo.insert_or_update()
+    rescue
+      Ecto.ConstraintError ->
+        Logger.info("Inserting set failed, updating set #{Map.get(attrs, "code")}")
+        set = get_set_by_code!(Map.get(attrs, "code"))
+        update_set(set, attrs)
+    end
   end
 
   @doc """
@@ -148,15 +155,40 @@ defmodule Phelddagrif.Atlas do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_card(%{"set" => code} = attrs) do
+  def upsert_card(%{"set" => code} = attrs) do
     set = Phelddagrif.Atlas.get_set_by_code!(code)
 
-    {:ok, card} =
+    try do
+      {:ok, card} =
       Ecto.build_assoc(set, :cards)
       |> Card.changeset(attrs)
       |> Repo.insert()
 
-    {:ok, Repo.preload(card, [:set])}
+      {:ok, Repo.preload(card, [:set])}
+    rescue
+      Ecto.ConstraintError ->
+        Logger.info("Inserting card failed, updating card #{Map.get(attrs, "scryfall_id")}")
+        card = get_card_by_scryfall_id!(Map.get(attrs, "scryfall_id"))
+        update_card(card, attrs)
+    end
+  end
+
+  @doc """
+  Updates a card.
+
+  ## Examples
+
+      iex> update_card(card, %{field: new_value})
+      {:ok, %Card{}}
+
+      iex> update_card(card, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_card(%Card{} = card, attrs) do
+    card
+    |> Card.changeset(attrs)
+    |> Repo.update()
   end
 
   @doc """
@@ -247,6 +279,29 @@ defmodule Phelddagrif.Atlas do
         c in Card,
         where: c.id == ^id,
         preload: :set
+      )
+    )
+  end
+
+  @doc """
+  Gets a single card by its scryfall id.
+
+  Raises `Ecto.NoResultsError` if the Card does not exist.
+
+  ## Examples
+
+      iex> get_card_by_scryfall_id!("f0d82469-8e22-4767-a76b-f676a8e63c6e")
+      %Card{}
+
+      iex> get_card_by_scryfall_id!("f0d82469-8e22-4767-a76b-f676a8e63c6e")
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_card_by_scryfall_id!(scryfall_id) do
+    Repo.one!(
+      from(
+        c in Card,
+        where: c.scryfall_id == ^scryfall_id
       )
     )
   end

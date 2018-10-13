@@ -32,7 +32,7 @@ defmodule Mix.Tasks.Data.Import do
         |> Poison.decode!
         |> Map.get("data")
         |> Enum.map(fn(set) ->
-          case Atlas.create_set(set) do
+          case Atlas.upsert_set(set) do
             {:ok, inserted_set} ->
               Logger.info("Successfully inserted set #{inserted_set.code}")
             {:error, err} ->
@@ -67,7 +67,7 @@ defmodule Mix.Tasks.Data.Import do
         |> Enum.map(fn(card) ->
           card_with_scryfall_id = Map.put_new(card, "scryfall_id", Map.get(card, "id"))
 
-          case Atlas.create_card(card_with_scryfall_id) do
+          case Atlas.upsert_card(card_with_scryfall_id) do
             {:ok, inserted_card} ->
               Logger.info("Successfully inserted card #{inserted_card.scryfall_id}")
             {:error, err} ->
