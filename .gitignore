@@ -36,3 +36,6 @@ crash.log
 
 # Edelivery
 .deliver/releases/
+
+# Card images
+/priv/static/images/cards
