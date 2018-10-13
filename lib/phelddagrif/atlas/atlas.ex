@@ -84,16 +84,12 @@ defmodule Phelddagrif.Atlas do
 
   """
   def upsert_set(attrs \\ %{}) do
-    try do
-      %Set{}
-      |> Set.changeset(attrs)
-      |> Repo.insert_or_update()
-    rescue
-      Ecto.ConstraintError ->
-        Logger.info("Inserting set failed, updating set #{Map.get(attrs, "code")}")
-        set = get_set_by_code!(Map.get(attrs, "code"))
-        update_set(set, attrs)
-    end
+    %Set{}
+    |> Set.changeset(attrs)
+    |> Repo.insert(
+      on_conflict: :replace_all,
+      conflict_target: :code
+    )
   end
 
   @doc """
@@ -158,19 +154,15 @@ defmodule Phelddagrif.Atlas do
   def upsert_card(%{"set" => code} = attrs) do
     set = Phelddagrif.Atlas.get_set_by_code!(code)
 
-    try do
-      {:ok, card} =
-      Ecto.build_assoc(set, :cards)
-      |> Card.changeset(attrs)
-      |> Repo.insert()
+    {:ok, card} =
+    Ecto.build_assoc(set, :cards)
+    |> Card.changeset(attrs)
+    |> Repo.insert(
+      on_conflict: :replace_all,
+      conflict_target: :scryfall_id
+    )
 
-      {:ok, Repo.preload(card, [:set])}
-    rescue
-      Ecto.ConstraintError ->
-        Logger.info("Inserting card failed, updating card #{Map.get(attrs, "scryfall_id")}")
-        card = get_card_by_scryfall_id!(Map.get(attrs, "scryfall_id"))
-        update_card(card, attrs)
-    end
+    {:ok, Repo.preload(card, [:set])}
   end
 
   @doc """
