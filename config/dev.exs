@@ -40,8 +40,11 @@ config :phelddagrif, PhelddagrifWeb.Endpoint,
     ]
   ]
 
-# Do not include metadata nor timestamps in development logs
-config :logger, :console, format: "[$level] $message\n"
+# # Do not include metadata nor timestamps in development logs
+# config :logger, :console, format: "[$level] $message\n"
+
+# Do not print debug messages in production
+config :logger, level: :info
 
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.

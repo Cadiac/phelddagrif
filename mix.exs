@@ -43,7 +43,8 @@ defmodule Phelddagrif.Mixfile do
       {:cowboy, "~> 1.0"},
       {:httpoison, "~> 1.0"},
       {:edeliver, ">= 1.6.0"},
-      {:distillery, "~> 2.0"}
+      {:distillery, "~> 2.0"},
+      {:timex, "~> 3.1"}
     ]
   end
 
