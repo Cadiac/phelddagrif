@@ -7,8 +7,7 @@ defmodule Mix.Tasks.Data.Import do
 
   @api_options [recv_timeout: 60_000]
   @sets_api_url "https://api.scryfall.com/sets"
-  # @cards_bulk_url "https://archive.scryfall.com/json/scryfall-oracle-cards.json"
-  @cards_bulk_url "http://localhost:4000/images/cards/scryfall-oracle-cards.json"
+  @cards_bulk_url "https://archive.scryfall.com/json/scryfall-oracle-cards.json"
 
   @shortdoc "Imports card data using Scryfall API"
   def run(_) do
@@ -19,7 +18,7 @@ defmodule Mix.Tasks.Data.Import do
   def import_data() do
     Logger.info("Beginning data import")
     Logger.info("Importing sets")
-    # fetch_sets()
+    fetch_sets()
     Logger.info("Importing cards")
     fetch_cards_bulk()
     Logger.info("Import done!")
