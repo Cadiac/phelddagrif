@@ -71,9 +71,6 @@ defmodule Phelddagrif.Atlas.Card do
     field(:border_color, :string, null: false)
     field(:story_spotlight_number, :integer)
     field(:story_spotlight_uri, :string)
-    field(:timeshifted, :boolean, null: false)
-    field(:colorshifted, :boolean, null: false)
-    field(:futureshifted, :boolean, null: false)
 
     belongs_to :set, Set, foreign_key: :set_id
     many_to_many :collections, Collection, join_through: Phelddagrif.Catalog.CollectionCard
@@ -137,9 +134,6 @@ defmodule Phelddagrif.Atlas.Card do
       :border_color,
       :story_spotlight_number,
       :story_spotlight_uri,
-      :timeshifted,
-      :colorshifted,
-      :futureshifted
     ])
     |> cast_assoc(:collections, required: false)
   end
