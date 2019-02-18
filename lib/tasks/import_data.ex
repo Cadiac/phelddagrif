@@ -132,8 +132,8 @@ defmodule Mix.Tasks.Data.Import do
           {:ok, last_modified} = Timex.parse(date, "{RFC1123}")
 
           relative_url = "/images/cards/#{name}"
-
-          File.write!("priv/static#{relative_url}", body)
+          card_images_dir = System.get_env("CARD_IMAGES_DIR") || raise "expected the CARD_IMAGES_DIR environment variable to be set"
+          File.write!("#{card_images_dir}/#{name}", body)
 
           Atlas.upsert_card_image(card, %{
             last_modified: last_modified,

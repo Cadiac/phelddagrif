@@ -38,6 +38,6 @@ crash.log
 .deliver/releases/
 
 # Card images
-/priv/static/images/cards
+images
 
 .DS_Store
