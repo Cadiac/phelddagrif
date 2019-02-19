@@ -68,6 +68,11 @@ resource "digitalocean_droplet" "phelddagrif" {
       "echo \"export PORT=3000\" >> /home/production/.profile",
       "echo \"export DATABASE_URL=\"postgres://production:${var.production_db_password}@localhost/phelddagrif_prod\"\" >> /home/production/.profile",
       "echo \"export SECRET_KEY_BASE=${var.secret_key_base}\" >> /home/production/.profile",
+      "echo \"export CARD_IMAGES_DIR=\"/var/www/phelddagrif/static/images/cards\"\" >> /home/production/.profile",
+      # Create directory for serving static files
+      "sudo chown -R production:www-data /var/www",
+      "sudo chmod -R 0755 /var/www",
+      "mkdir -p /var/www/phelddagrif/static/images/cards",
       # Copy nginx config from tmp and replace the default site with it
       "cp /tmp/nginx.conf /etc/nginx/sites-available/default",
       # Restart nginx
