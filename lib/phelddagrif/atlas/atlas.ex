@@ -223,7 +223,21 @@ defmodule Phelddagrif.Atlas do
       [%Card{}, ...]
 
   """
-  def search_cards(term, page \\ 1, limit \\ 100) do
+
+  # HOW DO I EVEN
+  def search_cards(%{term: nil, page: page, limit: limit}) do
+    list_cards(page, limit)
+  end
+  def search_cards(%{term: term, page: nil, limit: limit}) do
+    search_cards_with_filter(term, 1, limit)
+  end
+  def search_cards(%{term: term, page: page, limit: nil}) do
+    search_cards_with_filter(term, page, 100)
+  end
+  def search_cards(%{term: term, page: nil, limit: nil}) do
+    search_cards_with_filter(term, 1, 100)
+  end
+  defp search_cards_with_filter(term, page, limit) do
     wildcard_term = "%#{term}%"
 
     cards =

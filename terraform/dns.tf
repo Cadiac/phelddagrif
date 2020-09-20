@@ -1,6 +1,6 @@
 # Create new A and CNAME records
 resource "digitalocean_domain" "default" {
-  name = "sivu.website"
+  name = "sivu.dev"
   ip_address = "${digitalocean_droplet.phelddagrif.ipv4_address}"
 }
 
